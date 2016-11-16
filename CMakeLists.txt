@@ -4,6 +4,8 @@ project(slua)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O2 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_LINUX")
 
 add_subdirectory("mod_kernel")
+add_subdirectory("mod_utf8lib")
+add_subdirectory("mod_mathlib")
 add_subdirectory("mod_all")
 add_subdirectory("mod_compiler")
 add_subdirectory("mod_interpreter")
