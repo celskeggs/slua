@@ -6,9 +6,6 @@
 
 #define lua_c
 
-#include "lprefix.h"
-
-
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +14,7 @@
 #include "lua.h"
 
 #include "lauxlib.h"
+#include <linit.h>
 #include "lualib.h"
 
 
