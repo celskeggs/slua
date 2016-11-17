@@ -99,22 +99,20 @@ static const char *additional = "\n"
         "        t[i + 1] = t[i]\n"
         "    end\n"
         "    t[pos] = elem\n"
+        "end\n"
+        "function table.remove(t, i)\n"
+        "    local len = math.tointeger(#t)\n"
+        "    if not len then error('object length is not an integer') end\n"
+        "    local p = math.tointeger(i) or len\n"
+        "    if p ~= len and (p < 1 or p > len + 1) then error('position out of bounds') end\n"
+        "    local ret = t[p]\n"
+        "    while p < len do\n"
+        "        t[p] = t[p + 1]\n"
+        "        p = p + 1\n"
+        "    end\n"
+        "    t[p] = nil\n"
+        "    return ret\n"
         "end\n";
-
-static int tremove(lua_State *L) {
-    lua_Integer size = aux_getn(L, 1, TAB_RW);
-    lua_Integer pos = luaL_optinteger(L, 2, size);
-    if (pos != size)  /* validate 'pos' if given */
-        luaL_argcheck(L, 1 <= pos && pos <= size + 1, 1, "position out of bounds");
-    lua_geti(L, 1, pos);  /* result = t[pos] */
-    for (; pos < size; pos++) {
-        lua_geti(L, 1, pos + 1);
-        lua_seti(L, 1, pos);  /* t[pos] = t[pos + 1] */
-    }
-    lua_pushnil(L);
-    lua_seti(L, 1, pos);  /* t[pos] = nil */
-    return 1;
-}
 
 
 /*
@@ -426,7 +424,6 @@ static const luaL_Reg tab_funcs[] = {
 #endif
         {"pack", pack},
         {"unpack", unpack},
-        {"remove", tremove},
         {"move", tmove},
         {"sort", sort},
         {NULL, NULL}
