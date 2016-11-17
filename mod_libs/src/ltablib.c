@@ -75,32 +75,31 @@ static int maxn (lua_State *L) {
 #endif
 
 
-static int tinsert(lua_State *L) {
-    lua_Integer e = aux_getn(L, 1, TAB_RW) + 1;  /* first empty element */
-    lua_Integer pos;  /* where to insert new element */
-    switch (lua_gettop(L)) {
-        case 2: {  /* called with only 2 arguments */
-            pos = e;  /* insert new element at the end */
-            break;
-        }
-        case 3: {
-            lua_Integer i;
-            pos = luaL_checkinteger(L, 2);  /* 2nd argument is the position */
-            luaL_argcheck(L, 1 <= pos && pos <= e, 2, "position out of bounds");
-            for (i = e; i > pos; i--) {  /* move up elements */
-                lua_geti(L, 1, i - 1);
-                lua_seti(L, 1, i);  /* t[i] = t[i - 1] */
-            }
-            break;
-        }
-        default: {
-            return luaL_error(L, "wrong number of arguments to 'insert'");
-        }
-    }
-    lua_seti(L, 1, pos);  /* t[pos] = v */
-    return 0;
-}
-
+static const char *additional = "\n"
+        "local table = ...\n"
+        "function table.insert(t, pos, ...)\n"
+        "    local elem\n"
+        "    local count = select(\"#\", ...)\n"
+        "    local e = math.tointeger(#t)\n"
+        "    if not e then error('object length is not an integer') end\n"
+        "    if count < 1 then\n"
+        "        elem = pos\n"
+        "        pos = e + 1\n"
+        "    elseif count > 1 then\n"
+        "        error(\"wrong number of arguments to 'insert'\")\n"
+        "    else\n"
+        "        elem = select(1, ...)\n"
+        "        pos = math.tointeger(pos)\n"
+        "        if pos < 1 or pos > e + 1 then\n"
+        "            error('position out of bounds')\n"
+        "        end\n"
+        "    end\n"
+        "    local len = #t\n"
+        "    for i = len, pos, -1 do\n"
+        "        t[i + 1] = t[i]\n"
+        "    end\n"
+        "    t[pos] = elem\n"
+        "end\n";
 
 static int tremove(lua_State *L) {
     lua_Integer size = aux_getn(L, 1, TAB_RW);
@@ -425,7 +424,6 @@ static const luaL_Reg tab_funcs[] = {
 #if defined(LUA_COMPAT_MAXN)
         {"maxn", maxn},
 #endif
-        {"insert", tinsert},
         {"pack", pack},
         {"unpack", unpack},
         {"remove", tremove},
@@ -437,6 +435,12 @@ static const luaL_Reg tab_funcs[] = {
 
 LUAMOD_API int luaopen_table(lua_State *L) {
     luaL_newlib(L, tab_funcs);
+
+    if (luaL_loadbuffer(L, additional, strlen(additional), "ltablib.lua") != LUA_OK) {
+        return luaL_error(L, "could not init table library");
+    }
+    lua_pushvalue(L, -2);
+    lua_call(L, 1, 0);
 #if defined(LUA_COMPAT_UNPACK)
     /* _G.unpack = table.unpack */
     lua_getfield(L, -1, "unpack");
