@@ -652,7 +652,6 @@ if not _port then
     if v[2] == "ok" then
       assert(x and y == 'exit' and z == 0)
     else
-      print("FAILED AT", v[1], x, y)
       assert(not x and y == v[2])   -- correct status and 'what'
       -- correct code if known (but always different from 0)
       assert((v[3] == nil and z > 0) or v[3] == z)
