@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 project(slua)
+enable_language(C ASM)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -O2 -Wall -Wextra -DLUA_COMPAT_5_2 -DLUA_USE_LINUX")
 

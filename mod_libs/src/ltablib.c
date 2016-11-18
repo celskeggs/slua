@@ -75,46 +75,6 @@ static int maxn (lua_State *L) {
 #endif
 
 
-static const char *additional = "\n"
-        "local table = ...\n"
-        "function table.insert(t, pos, ...)\n"
-        "    local elem\n"
-        "    local count = select(\"#\", ...)\n"
-        "    local e = math.tointeger(#t)\n"
-        "    if not e then error('object length is not an integer') end\n"
-        "    if count < 1 then\n"
-        "        elem = pos\n"
-        "        pos = e + 1\n"
-        "    elseif count > 1 then\n"
-        "        error(\"wrong number of arguments to 'insert'\")\n"
-        "    else\n"
-        "        elem = select(1, ...)\n"
-        "        pos = math.tointeger(pos)\n"
-        "        if pos < 1 or pos > e + 1 then\n"
-        "            error('position out of bounds')\n"
-        "        end\n"
-        "    end\n"
-        "    local len = #t\n"
-        "    for i = len, pos, -1 do\n"
-        "        t[i + 1] = t[i]\n"
-        "    end\n"
-        "    t[pos] = elem\n"
-        "end\n"
-        "function table.remove(t, i)\n"
-        "    local len = math.tointeger(#t)\n"
-        "    if not len then error('object length is not an integer') end\n"
-        "    local p = math.tointeger(i) or len\n"
-        "    if p ~= len and (p < 1 or p > len + 1) then error('position out of bounds') end\n"
-        "    local ret = t[p]\n"
-        "    while p < len do\n"
-        "        t[p] = t[p + 1]\n"
-        "        p = p + 1\n"
-        "    end\n"
-        "    t[p] = nil\n"
-        "    return ret\n"
-        "end\n";
-
-
 /*
 ** Copy elements (1[f], ..., 1[e]) into (tt[t], tt[t+1], ...). Whenever
 ** possible, copy in increasing order, which is better for rehashing.
@@ -430,10 +390,15 @@ static const luaL_Reg tab_funcs[] = {
 };
 
 
+extern const char lualib_bytes_ltablib_lua[];
+extern const char lualib_bytes_ltablib_lua_end[];
+
+
 LUAMOD_API int luaopen_table(lua_State *L) {
     luaL_newlib(L, tab_funcs);
 
-    if (luaL_loadbuffer(L, additional, strlen(additional), "ltablib.lua") != LUA_OK) {
+    if (luaL_loadbuffer(L, lualib_bytes_ltablib_lua, lualib_bytes_ltablib_lua_end - lualib_bytes_ltablib_lua,
+                        "ltablib.lua") != LUA_OK) {
         return luaL_error(L, "could not init table library");
     }
     lua_pushvalue(L, -2);
