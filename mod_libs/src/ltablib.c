@@ -75,6 +75,18 @@ static int maxn (lua_State *L) {
 #endif
 
 
+static int trawmeta(lua_State *L) {
+    if (lua_getmetatable(L, 1)) {
+        lua_pushboolean(L, 1);
+        lua_insert(L, 1);
+        return 2;
+    } else {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+}
+
+
 /*
 ** Copy elements (1[f], ..., 1[e]) into (tt[t], tt[t+1], ...). Whenever
 ** possible, copy in increasing order, which is better for rehashing.
@@ -384,8 +396,9 @@ static const luaL_Reg tab_funcs[] = {
 #endif
         {"pack", pack},
         {"unpack", unpack},
-        {"move", tmove},
+        //{"move", tmove},
         {"sort", sort},
+        {"getrawmeta", trawmeta},
         {NULL, NULL}
 };
 

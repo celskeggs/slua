@@ -99,19 +99,19 @@ do
 
   local a = table.move({10,20,30}, 1, 3, 2)  -- move forward
   eqT(a, {10,10,20,30})
-
+print("A")
   -- move forward with overlap of 1
   a = table.move({10, 20, 30}, 1, 3, 3)
   eqT(a, {10, 20, 10, 20, 30})
-
+  print("Z")
   -- moving to the same table (not being explicit about it)
   a = {10, 20, 30, 40}
   table.move(a, 1, 4, 2, a)
   eqT(a, {10, 10, 20, 30, 40})
-
+  print("BX")
   a = table.move({10,20,30}, 2, 3, 1)   -- move backward
   eqT(a, {20,30,30})
-
+  print("C")
   a = {}   -- move to new table
   assert(table.move({10,20,30}, 1, 3, 1, a) == a)
   eqT(a, {10,20,30})
